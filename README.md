@@ -1,6 +1,6 @@
 # Document Q&A Application
 
-A full-stack application for uploading documents and asking questions about them using a local LLM (Ollama).
+A small full-stack app for uploading documents and asking questions about them with a local Ollama model.
 
 ## Architecture
 
@@ -21,7 +21,7 @@ A full-stack application for uploading documents and asking questions about them
 
 ## Quick Start
 
-### Step 1: Install Ollama (Free Local LLM)
+### Step 1: Install Ollama
 
 1. Download Ollama from https://ollama.ai
 2. Install and run it
@@ -47,7 +47,7 @@ pip install -r requirements.txt
 python app.py
 ```
 
-Server starts on `http://localhost:5000`
+Server starts on `http://localhost:5001`
 
 ### Step 3: Set Up Frontend
 
@@ -68,7 +68,7 @@ Frontend starts on `http://localhost:3000`
 1. Open http://localhost:3000
 2. Upload a document (PDF, TXT, or DOCX)
 3. Ask questions about the document
-4. Get answers powered by your local LLM!
+4. Review the answer in the UI
 
 ## How It Works
 
@@ -92,48 +92,11 @@ Frontend starts on `http://localhost:3000`
    - Ollama runs the model and returns answer
 4. Frontend displays answer and adds to history
 
-## Key Code Concepts
+## Notes
 
-### Frontend - React Component Pattern
-```jsx
-// App.jsx manages document state
-const [documentId, setDocumentId] = useState(null);
-
-const handleDocumentUpload = async (file) => {
-  const response = await axios.post('/api/upload', formData);
-  setDocumentId(response.data.document_id);
-};
-```
-
-### Backend - Flask Endpoints
-```python
-@app.route('/upload', methods=['POST'])
-def upload_document():
-    # Extract file, save it, extract text, store in memory
-    return jsonify({'document_id': doc_id})
-
-@app.route('/ask', methods=['POST'])
-def ask_question():
-    # Get question and document ID
-    # Create prompt with context
-    # Call Ollama
-    # Return answer
-```
-
-### Document Processing
-```python
-def extract_text_from_file(filepath):
-    # Handles .pdf, .txt, .docx
-    # Returns extracted text as string
-```
-
-### LLM Integration (Ollama)
-```python
-def answer_question(question, document_text):
-    # Prepare prompt with question + context
-    # POST to http://localhost:11434/api/generate
-    # Get LLM response
-```
+- Uploaded files are stored in `backend/uploads/`
+- Extracted text and Q&A history are stored in `backend/data/document_qa.db`
+- The backend trims and chunks document text before sending context to Ollama
 
 ## Technology Stack
 
@@ -151,39 +114,18 @@ def answer_question(question, document_text):
 - **TXT** - Read as plain text
 - **DOCX** - Extracted using python-docx
 
-## Free LLM Models You Can Use
+## Models
 
-With Ollama, you can use any of these free models:
+Any Ollama text model should work. A few easy options:
 
 ```bash
-ollama pull mistral      # Recommended - fast, good quality
-ollama pull llama2       # Meta's Llama 2
-ollama pull neural-chat  # Good for conversations
-ollama pull orca-mini    # Lighter weight
+ollama pull mistral
+ollama pull llama2
+ollama pull neural-chat
+ollama pull orca-mini
 ```
 
 Switch models by changing `OLLAMA_MODEL` in `backend/.env`
-
-## Learning Path
-
-### Phase 1: Understand the Components
-1. Read through `frontend/src/App.jsx` - understand React state management
-2. Read through `backend/app.py` - understand Flask endpoints
-3. Read through `backend/llm_service.py` - understand LLM integration
-
-### Phase 2: Modify & Extend
-1. Add more file formats (Word, Excel, etc.)
-2. Improve prompt engineering in `llm_service.py`
-3. Add conversation history (currently only in frontend)
-4. Add semantic search instead of simple context selection
-5. Store documents in a real database (SQLite, PostgreSQL)
-
-### Phase 3: Advanced Features
-1. Add authentication (user accounts)
-2. Implement RAG (Retrieval Augmented Generation)
-3. Add document chunking for better context
-4. Use embeddings for semantic search
-5. Add web scraping to ask about web pages
 
 ## Troubleshooting
 
@@ -206,7 +148,7 @@ Switch models by changing `OLLAMA_MODEL` in `backend/.env`
 - Supported: PDF, TXT, DOCX
 - Check `uploads/` folder has write permissions
 
-## Production Deployment
+## Deployment Notes
 
 ### Frontend
 ```bash
@@ -221,13 +163,9 @@ npm run build  # Creates dist/
 - Add authentication
 - Deploy to Heroku, AWS, DigitalOcean, etc.
 
-## Next Steps
+## Next Ideas
 
-1. ✅ Run locally and test with a sample document
-2. 🔧 Customize the UI colors/styling
-3. 📚 Add more document types
-4. 🔍 Improve question answering with better prompts
-5. 📊 Add document analytics
-6. 🔐 Add user authentication
-
-Happy coding! 🚀
+1. Add better retrieval with embeddings
+2. Show citations or page references
+3. Save document summaries
+4. Add auth if you want multi-user support

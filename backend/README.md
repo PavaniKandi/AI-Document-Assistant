@@ -1,12 +1,12 @@
 # Backend Documentation
 
-This is the Flask backend for the Document Q&A application.
+Flask backend for the document Q&A app.
 
 ## Setup Instructions
 
-### 1. Install Ollama (Free LLM)
+### 1. Install Ollama
 
-Ollama allows you to run LLMs locally for free. Download it from: https://ollama.ai
+Download Ollama from: https://ollama.ai
 
 **After installation, pull a model:**
 ```bash
@@ -39,7 +39,7 @@ pip install -r requirements.txt
 python app.py
 ```
 
-The backend will start on http://localhost:5000
+The backend will start on http://localhost:5001
 
 ## API Endpoints
 
@@ -84,21 +84,20 @@ Ask a question about a document
 ### GET /health
 Health check endpoint
 
+### GET /history/<document_id>
+Get saved Q&A history for a document
+
 ## How It Works
 
-1. Document Upload: Users upload a document (PDF, TXT, DOCX)
-2. Text Extraction: The backend extracts text from the uploaded document
-3. Storage: Document content is stored in memory (use a database in production)
-4. Question Processing: When a question is asked:
-   - Relevant context is extracted from the document
-   - A prompt is created with the question and context
-   - The prompt is sent to Ollama (running locally)
-   - The LLM generates an answer
-   - The answer is returned to the frontend
+1. Upload a document
+2. Extract text from the file
+3. Save the file metadata, text, and Q&A history in SQLite
+4. Build a prompt from the question and the most relevant text chunks
+5. Send the prompt to Ollama and return the answer
 
 ## Notes
 
 - Ollama runs locally, so no API keys are needed
-- The model runs on your machine (private and free)
 - First request might take a while as the model loads
 - Supports PDF, TXT, and DOCX files
+- Default database path: `backend/data/document_qa.db`

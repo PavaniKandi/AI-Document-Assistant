@@ -3,8 +3,15 @@ Document processing module.
 Handles text extraction from various file formats.
 """
 
+import re
+
 from PyPDF2 import PdfReader
 from docx import Document as DocxDocument
+
+
+def clean_extracted_text(text):
+    """Normalize whitespace so downstream retrieval gets cleaner chunks."""
+    return re.sub(r'\s+', ' ', text).strip()
 
 def extract_text_from_pdf(filepath):
     """
@@ -25,7 +32,7 @@ def extract_text_from_pdf(filepath):
     except Exception as e:
         raise Exception(f"Error reading PDF: {str(e)}")
     
-    return text
+    return clean_extracted_text(text)
 
 def extract_text_from_txt(filepath):
     """
@@ -43,7 +50,7 @@ def extract_text_from_txt(filepath):
     except Exception as e:
         raise Exception(f"Error reading TXT: {str(e)}")
     
-    return text
+    return clean_extracted_text(text)
 
 def extract_text_from_docx(filepath):
     """
@@ -63,7 +70,7 @@ def extract_text_from_docx(filepath):
     except Exception as e:
         raise Exception(f"Error reading DOCX: {str(e)}")
     
-    return text
+    return clean_extracted_text(text)
 
 def extract_text_from_file(filepath):
     """
