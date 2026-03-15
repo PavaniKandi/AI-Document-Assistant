@@ -2,12 +2,11 @@ import React, { useState } from 'react'
 import axios from 'axios'
 import './QuestionAnswering.css'
 
-function QuestionAnswering({ documentId }) {
+function QuestionAnswering({ documentId, onHistoryUpdate }) {
   const [question, setQuestion] = useState('')
   const [answer, setAnswer] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [history, setHistory] = useState([])
 
   const handleAsk = async (e) => {
     e.preventDefault()
@@ -30,7 +29,7 @@ function QuestionAnswering({ documentId }) {
       })
 
       setAnswer(response.data.answer)
-      setHistory([...history, { question, answer: response.data.answer }])
+      onHistoryUpdate()
       setQuestion('')
     } catch (err) {
       setError(err.response?.data?.error || err.message || 'Failed to get answer')
@@ -41,10 +40,14 @@ function QuestionAnswering({ documentId }) {
   }
 
   return (
-    <div className="qa-container">
+    <div className="qa-shell">
       <div className="qa-section">
         <h2>Ask Questions About Your Document</h2>
-        
+        <p className="qa-intro">
+          Ask direct questions, summarize content, or test whether the document contains a
+          specific detail.
+        </p>
+
         <form onSubmit={handleAsk} className="question-form">
           <input
             type="text"
@@ -55,35 +58,25 @@ function QuestionAnswering({ documentId }) {
             className="question-input"
           />
           <button type="submit" disabled={loading || !question.trim()} className="ask-btn">
-            {loading ? '⏳ Thinking...' : '🔍 Ask'}
+            {loading ? 'Thinking...' : 'Ask'}
           </button>
         </form>
 
         {error && <div className="error-message">{error}</div>}
 
-        {answer && (
+        {answer ? (
           <div className="answer-section">
-            <h3>Answer</h3>
+            <h3>Latest Answer</h3>
             <div className="answer-box">
               {answer}
             </div>
           </div>
+        ) : (
+          <div className="answer-placeholder">
+            Your latest answer will appear here after you ask a question.
+          </div>
         )}
       </div>
-
-      {history.length > 0 && (
-        <div className="history-section">
-          <h3>History</h3>
-          <div className="history-list">
-            {history.map((item, index) => (
-              <div key={index} className="history-item">
-                <p className="history-question"><strong>Q:</strong> {item.question}</p>
-                <p className="history-answer"><strong>A:</strong> {item.answer}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   )
 }
