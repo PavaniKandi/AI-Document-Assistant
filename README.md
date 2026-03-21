@@ -1,171 +1,75 @@
-# Document Q&A Application
+# Document Q&A
 
-A small full-stack app for uploading documents and asking questions about them with a local Ollama model.
+Document Q&A is a full-stack app for uploading documents and asking questions about their contents with a locally running Ollama model. It supports PDF, TXT, DOCX, and DOC files, keeps uploaded documents and question history in SQLite, and includes sign-in so each user sees their own saved work.
 
-## Architecture
+## Stack
 
-```
-├── frontend/              # React + Vite
-│   ├── src/
-│   │   ├── App.jsx       # Main app component
-│   │   ├── components/   # DocumentUpload, QuestionAnswering
-│   │   └── main.jsx
-│   └── package.json
-│
-└── backend/              # Flask + Python
-    ├── app.py            # Flask server
-    ├── document_processor.py  # Text extraction
-    ├── llm_service.py    # Ollama integration
-    └── requirements.txt
-```
+- Frontend: React, Vite, Axios
+- Backend: Flask, Python
+- Database: SQLite
+- Local model runtime: Ollama
+- Document parsing: PyPDF2, python-docx
 
-## Quick Start
+## Features
 
-### Step 1: Install Ollama
+- Email/password sign-in
+- Upload support for PDF, TXT, DOCX, and DOC
+- Question answering against uploaded documents
+- Saved document list in the left panel
+- Per-document question history in the right panel
+- SQLite-backed persistence for users, documents, and chat history
 
-1. Download Ollama from https://ollama.ai
-2. Install and run it
-3. Pull a model:
-   ```bash
-   ollama pull mistral
-   ```
-4. Keep Ollama running (it serves on `http://localhost:11434`)
+## Project Structure
 
-### Step 2: Set Up Backend
-
-```bash
-cd backend
-
-# Create virtual environment
-python3 -m venv venv
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run Flask server
-python app.py
+```text
+frontend/
+  src/
+    App.jsx
+    components/
+backend/
+  app.py
+  database.py
+  document_processor.py
+  llm_service.py
 ```
 
-Server starts on `http://localhost:5001`
+## Running Locally
 
-### Step 3: Set Up Frontend
+### 1. Start Ollama
 
-```bash
-cd frontend
-
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-```
-
-Frontend starts on `http://localhost:3000`
-
-### Step 4: Use the App
-
-1. Open http://localhost:3000
-2. Upload a document (PDF, TXT, or DOCX)
-3. Ask questions about the document
-4. Review the answer in the UI
-
-## How It Works
-
-### Document Upload Flow
-1. User selects a file via drag-drop or file picker
-2. Frontend sends file to backend /upload endpoint
-3. Backend:
-   - Saves the file
-   - Extracts text from file
-   - Stores document content
-   - Returns document ID
-4. Frontend displays success and enables Q&A
-
-### Question Answering Flow
-1. User enters a question
-2. Frontend sends to backend /ask endpoint
-3. Backend:
-   - Retrieves document text
-   - Creates a prompt
-   - Sends prompt to Ollama API
-   - Ollama runs the model and returns answer
-4. Frontend displays answer and adds to history
-
-## Notes
-
-- Uploaded files are stored in `backend/uploads/`
-- Extracted text and Q&A history are stored in `backend/data/document_qa.db`
-- The backend trims and chunks document text before sending context to Ollama
-
-## Technology Stack
-
-| Component | Technology |
-|-----------|-----------|
-| Frontend | React 18, Vite, Axios |
-| Backend | Flask, Python 3 |
-| LLM | Ollama (local, free) |
-| File Processing | PyPDF2, python-docx |
-| Communication | HTTP REST API |
-
-## Supported File Formats
-
-- **PDF** - Extracted using PyPDF2
-- **TXT** - Read as plain text
-- **DOCX** - Extracted using python-docx
-
-## Models
-
-Any Ollama text model should work. A few easy options:
+Install Ollama, then pull a model and start the service:
 
 ```bash
 ollama pull mistral
-ollama pull llama2
-ollama pull neural-chat
-ollama pull orca-mini
+ollama serve
 ```
 
-Switch models by changing `OLLAMA_MODEL` in `backend/.env`
+The backend expects Ollama at `http://localhost:11434`.
 
-## Troubleshooting
+### 2. Start the backend
 
-### "Cannot connect to Ollama"
-- Make sure Ollama is running: `ollama serve`
-- Check it's on localhost:11434
-- Try in terminal: `curl http://localhost:11434/api/tags`
-
-### "Model not found"
-- Pull the model: `ollama pull mistral`
-- Check OLLAMA_MODEL in `backend/.env`
-
-### Slow responses
-- First request takes time as model loads
-- Subsequent requests are faster
-- Try a lighter model: `ollama pull neural-chat`
-
-### File upload fails
-- Check file size (max 10MB)
-- Supported: PDF, TXT, DOCX
-- Check `uploads/` folder has write permissions
-
-## Deployment Notes
-
-### Frontend
 ```bash
-npm run build  # Creates dist/
-# Deploy dist/ to Netlify, Vercel, or your server
+cd backend
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python app.py
 ```
 
-### Backend
-- Use Gunicorn instead of Flask dev server
-- Store files in cloud storage (AWS S3, etc.)
-- Use a real database
-- Add authentication
-- Deploy to Heroku, AWS, DigitalOcean, etc.
+The Flask server runs on `http://localhost:5001`.
 
-## Next Ideas
+### 3. Start the frontend
 
-1. Add better retrieval with embeddings
-2. Show citations or page references
-3. Save document summaries
-4. Add auth if you want multi-user support
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The frontend runs on `http://localhost:3000`.
+
+## Notes
+
+- Uploaded files are stored under `backend/uploads/`.
+- SQLite data is stored under `backend/data/`.
+- This project is set up for local development and demo use.
