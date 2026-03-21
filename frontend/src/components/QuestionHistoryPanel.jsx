@@ -16,7 +16,7 @@ function formatHistoryTime(value) {
     month: 'short',
     day: 'numeric',
     hour: 'numeric',
-    minute: '2-digit'
+    minute: '2-digit',
   })
 }
 
@@ -27,14 +27,14 @@ function QuestionHistoryPanel({ history, documentName }) {
         <p className="question-history-eyebrow">Selected Chat</p>
         <h3>History</h3>
         <p className="question-history-subtitle">
-          {documentName || 'Select a chat from the left rail to inspect its answers.'}
+          {documentName || 'Pick a chat on the left to view its answers.'}
         </p>
       </div>
 
       {history.length === 0 ? (
         <div className="question-history-empty">
           <p>No saved questions yet.</p>
-          <p>Ask something in the middle panel and it will appear here.</p>
+          <p>Ask something and it will appear here.</p>
         </div>
       ) : (
         <div className="question-history-list">

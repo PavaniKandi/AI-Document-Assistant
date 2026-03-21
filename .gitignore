@@ -30,7 +30,9 @@ instance/
 # Uploads
 uploads/
 !uploads/.gitkeep
+backend/uploads/
 backend/data/
+output/
 tmp/
 
 # Environment

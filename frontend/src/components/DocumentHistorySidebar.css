@@ -93,9 +93,3 @@
   color: #a8bbd3;
   font-size: 12px;
 }
-
-@media (max-width: 960px) {
-  .history-sidebar {
-    min-height: auto;
-  }
-}

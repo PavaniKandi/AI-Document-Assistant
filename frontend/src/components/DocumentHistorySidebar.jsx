@@ -16,7 +16,7 @@ function formatTimestamp(value) {
     month: 'short',
     day: 'numeric',
     hour: 'numeric',
-    minute: '2-digit'
+    minute: '2-digit',
   })
 }
 
@@ -25,7 +25,7 @@ function DocumentHistorySidebar({
   selectedDocumentId,
   onSelectDocument,
   onCreateNew,
-  loading
+  loading,
 }) {
   return (
     <aside className="history-sidebar">
@@ -41,10 +41,10 @@ function DocumentHistorySidebar({
 
       <div className="history-sidebar-list">
         {loading ? (
-          <p className="history-sidebar-empty">Loading saved documents...</p>
+          <p className="history-sidebar-empty">Loading chats...</p>
         ) : documents.length === 0 ? (
           <p className="history-sidebar-empty">
-            No chats yet. Upload a document to start your first session.
+            No chats yet. Upload a document to start one.
           </p>
         ) : (
           documents.map((document) => (

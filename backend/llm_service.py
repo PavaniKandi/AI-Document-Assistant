@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Configuration
 OLLAMA_URL = os.getenv('OLLAMA_URL', 'http://localhost:11434')
 OLLAMA_MODEL = os.getenv('OLLAMA_MODEL', 'mistral')
 MAX_CONTEXT_LENGTH = 5000
@@ -55,7 +54,6 @@ def chunk_document(document_text):
             current_chunk = candidate
         else:
             chunks.append(current_chunk)
-
             overlap_text = current_chunk[-CHUNK_OVERLAP:].strip()
             current_chunk = f'{overlap_text} {sentence}'.strip()
 
@@ -88,7 +86,7 @@ def select_relevant_context(question, document_text):
             f'Section {index + 1}:\n{chunk}'
             for index, chunk in enumerate(selected_chunks)
         )
-        return context[:MAX_CONTEXT_LENGTH], selected_chunks
+        return context[:MAX_CONTEXT_LENGTH]
 
     scored_chunks = []
     for index, chunk in enumerate(chunks):
@@ -106,12 +104,13 @@ def select_relevant_context(question, document_text):
         for index, chunk in enumerate(selected_chunks)
     )
 
-    return context[:MAX_CONTEXT_LENGTH], selected_chunks
+    return context[:MAX_CONTEXT_LENGTH]
+
 
 def prepare_context(question, document_text):
-    context, selected_chunks = select_relevant_context(question, document_text)
+    context = select_relevant_context(question, document_text)
 
-    prompt = f"""Answer the question using only the document sections below.
+    return f"""Answer the question using only the document sections below.
 
 If the answer is implied but not stated word for word, explain the most likely answer based on the text.
 If the text only gives part of the answer, say that clearly.
@@ -123,12 +122,11 @@ Document:
 Question: {question}
 
 Answer:"""
-    
-    return prompt, selected_chunks
+
 
 def answer_question(question, document_text):
     try:
-        prompt, selected_chunks = prepare_context(question, document_text)
+        prompt = prepare_context(question, document_text)
         response = requests.post(
             f"{OLLAMA_URL}/api/generate",
             json={
@@ -136,45 +134,40 @@ def answer_question(question, document_text):
                 "prompt": prompt,
                 "stream": False,
                 "temperature": 0.7,
-                "top_p": 0.9
+                "top_p": 0.9,
             },
-            timeout=60
+            timeout=60,
         )
-        
+
         if response.status_code != 200:
             raise Exception(f"Ollama API error: {response.status_code}")
-        
+
         result = response.json()
         answer = result.get('response', '').strip()
-        
+
         if not answer:
             return {
                 'ok': False,
                 'answer': "I couldn't generate an answer. Please try a different question.",
-                'sources': []
             }
-        
+
         return {
             'ok': True,
             'answer': answer,
-            'sources': selected_chunks
         }
-    
+
     except requests.exceptions.ConnectionError:
         return {
             'ok': False,
-            'answer': "Error: Cannot connect to Ollama. Make sure Ollama is running on http://localhost:11434",
-            'sources': []
+            'answer': 'Error: Cannot connect to Ollama. Make sure Ollama is running on http://localhost:11434',
         }
     except requests.exceptions.Timeout:
         return {
             'ok': False,
-            'answer': "Error: Request to Ollama timed out. The model might be taking too long.",
-            'sources': []
+            'answer': 'Error: Request to Ollama timed out. The model might be taking too long.',
         }
     except Exception as e:
         return {
             'ok': False,
-            'answer': f"Error: {str(e)}",
-            'sources': []
+            'answer': f'Error: {str(e)}',
         }

@@ -10,30 +10,33 @@ function QuestionAnswering({ documentId, onHistoryUpdate }) {
 
   const handleAsk = async (e) => {
     e.preventDefault()
-    
+
     if (!question.trim()) return
 
     setLoading(true)
     setError(null)
 
     try {
-      const response = await axios.post('/api/ask', {
-        document_id: documentId,
-        question: question
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
+      const response = await axios.post(
+        '/api/ask',
+        {
+          document_id: documentId,
+          question,
         },
-        withCredentials: false
-      })
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          withCredentials: true,
+        }
+      )
 
       setAnswer(response.data.answer)
-      onHistoryUpdate()
+      await onHistoryUpdate()
       setQuestion('')
     } catch (err) {
       setError(err.response?.data?.error || err.message || 'Failed to get answer')
-      console.error('Ask error:', err)
     } finally {
       setLoading(false)
     }
@@ -44,8 +47,7 @@ function QuestionAnswering({ documentId, onHistoryUpdate }) {
       <div className="qa-section">
         <h2>Ask Questions About Your Document</h2>
         <p className="qa-intro">
-          Ask direct questions, summarize content, or test whether the document contains a
-          specific detail.
+          Ask direct questions, summarize content, or check for a specific detail.
         </p>
 
         <form onSubmit={handleAsk} className="question-form">
@@ -62,18 +64,16 @@ function QuestionAnswering({ documentId, onHistoryUpdate }) {
           </button>
         </form>
 
-        {error && <div className="error-message">{error}</div>}
+        {error && <div className="error-message inline-error">{error}</div>}
 
         {answer ? (
           <div className="answer-section">
             <h3>Latest Answer</h3>
-            <div className="answer-box">
-              {answer}
-            </div>
+            <div className="answer-box">{answer}</div>
           </div>
         ) : (
           <div className="answer-placeholder">
-            Your latest answer will appear here after you ask a question.
+            Your latest answer will show up here after you ask a question.
           </div>
         )}
       </div>
